@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>สุขสันต์วันเกิดน่ะดำเพื่อนรัก</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #10a2f7, #ffe6cc);
+      text-align: center;
+      padding: 30px;
+    }
+
+    textarea {
+      width: 80%;
+      max-width: 500px;
+      height: 100px;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 1em;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 25px;
+      font-size: 1em;
+      background: #2989e4;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .comment {
+      background: white;
+      margin: 15px auto;
+      max-width: 500px;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: left;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .container img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎉 สุขสันต์วันเกิด 🎂</h1>
+
+  <div class="container">
+    <p>สุขสันวันเกิด15Yน่ะเพื่อน</p>
+    <img src="https://media.discordapp.net/attachments/1109097573119172739/1381079342804897935/Annotation_2025-06-08_065511.png?ex=684635de&is=6844e45e&hm=7d761ce9ab3b375db54b352b076da5a2ba7221db3e2f4605fea50bb0b603abe4&=&format=webp&quality=lossless" alt="">
+  </div>
+
+  <p>ขอให้มีความสุขมาก ๆ สุขภาพแข็งแรง<br>สมหวังในทุกสิ่งที่ตั้งใจนะเพื่อน!</p>
+
+  <textarea id="commentInput" placeholder="อวยพรให้เพื่อนกูหน่อยเว้ยไอพวกกาก"></textarea><br>
+  <button onclick="postComment()">📨 โพสต์อวยพร</button>
+  <button onclick="sharePage()">🔗 แชร์ลิงก์เว็บนี้</button>
+
+  <div id="commentsSection"></div>
+
+  <script>
+    // 👉 ใส่ค่าจาก Firebase ของคุณตรงนี้
+    const firebaseConfig = {
+      apiKey: "",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://ggfff4726-4a418-default-rtdb.firebaseio.com/",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "XXXXXXXX",
+      appId: "APP_ID"
+    };
+
+    // เริ่ม Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ฟังก์ชันโพสต์คอมเมนต์
+    function postComment() {
+      const comment = document.getElementById("commentInput").value.trim();
+      if (comment === "") return alert("กรุณาพิมพ์คำอวยพร");
+
+      const newCommentRef = db.ref("comments").push();
+      newCommentRef.set({
+        message: comment,
+        time: Date.now()
+      });
+
+      document.getElementById("commentInput").value = "";
+    }
+
+    // ดึงคอมเมนต์จาก Firebase
+    db.ref("comments").on("child_added", function(snapshot) {
+      const data = snapshot.val();
+      const div = document.createElement("div");
+      div.className = "comment";
+      div.textContent = data.message;
+      document.getElementById("commentsSection").prepend(div);
+    });
+
+    // ฟังก์ชันแชร์เว็บ
+    function sharePage() {
+      const shareData = {
+        title: document.title,
+        text: "มาอวยพรวันเกิดเพื่อนผมกันครับ!",
+        url: window.location.href
+      };
+
+      if (navigator.share) {
+        navigator.share(shareData)
+          .then(() => console.log('แชร์สำเร็จ'))
+          .catch((err) => alert('แชร์ไม่สำเร็จ: ' + err));
+      } else {
+        // ถ้าเบราว์เซอร์ไม่รองรับ Web Share API
+        prompt("คัดลอกลิงก์ด้านล่างเพื่อแชร์:", window.location.href);
+      }
+    }
+  </script>
+</body>
+</html>
